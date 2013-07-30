@@ -34,10 +34,10 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 		requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
 	def getGroupDurationGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-		requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
+		groupDurationGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
 
 	def getGroupCumulatedResponseTimeGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-		requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
+		groupCumulatedResponseTimeGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
 
 	def updateRequestGeneralStatsBuffers(record: RequestRecord) {
 		import record._
@@ -50,10 +50,10 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 	def updateGroupGeneralStatsBuffers(record: GroupRecord) {
 		import record._
-		getGroupDurationGeneralStatsBuffers(group, None).update(duration)
-		getGroupDurationGeneralStatsBuffers(group, Some(status)).update(duration)
 		getGroupCumulatedResponseTimeGeneralStatsBuffers(group, None).update(cumulatedResponseTime)
 		getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(status)).update(cumulatedResponseTime)
+		getGroupDurationGeneralStatsBuffers(group, None).update(duration)
+		getGroupDurationGeneralStatsBuffers(group, Some(status)).update(duration)
 	}
 }
 

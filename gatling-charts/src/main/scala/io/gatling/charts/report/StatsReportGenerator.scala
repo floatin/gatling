@@ -29,9 +29,20 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 	def generate {
 
 		def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
-			val total = dataReader.requestGeneralStats(requestName, group, None)
-			val ok = dataReader.requestGeneralStats(requestName, group, Some(OK))
-			val ko = dataReader.requestGeneralStats(requestName, group, Some(KO))
+
+			val (total, ok, ko) = (requestName, group) match {
+				case (None, Some(group)) =>
+					val total = dataReader.groupGeneralStats(group, None)
+					val ok = dataReader.groupGeneralStats(group, Some(OK))
+					val ko = dataReader.groupGeneralStats(group, Some(KO))
+					(total, ok, ko)
+
+				case _ =>
+					val total = dataReader.requestGeneralStats(requestName, group, None)
+					val ok = dataReader.requestGeneralStats(requestName, group, Some(OK))
+					val ko = dataReader.requestGeneralStats(requestName, group, Some(KO))
+					(total, ok, ko)
+			}
 
 			val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
 			val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)

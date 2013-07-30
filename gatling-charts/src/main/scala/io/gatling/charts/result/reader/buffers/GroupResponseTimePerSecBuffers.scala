@@ -26,15 +26,15 @@ trait GroupResponseTimePerSecBuffers {
 	val durationPerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 	val cumulatedResponseTimePerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
-	def getGroupDurationPerSecBuffers(group: Group, status: Option[Status]): RangeBuffer =
-		durationPerSecBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new RangeBuffer)
-
 	def getGroupCumulatedResponseTimePerSecBuffers(group: Group, status: Option[Status]): RangeBuffer =
 		cumulatedResponseTimePerSecBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new RangeBuffer)
 
+	def getGroupDurationPerSecBuffers(group: Group, status: Option[Status]): RangeBuffer =
+		durationPerSecBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new RangeBuffer)
+
 	def updateGroupResponseTimePerSecBuffers(record: GroupRecord) {
 		import record._
-		getGroupDurationPerSecBuffers(group, Some(status)).update(startDateBucket, duration)
 		getGroupCumulatedResponseTimePerSecBuffers(group, Some(status)).update(startDateBucket, cumulatedResponseTime)
+		getGroupDurationPerSecBuffers(group, Some(status)).update(startDateBucket, duration)
 	}
 }

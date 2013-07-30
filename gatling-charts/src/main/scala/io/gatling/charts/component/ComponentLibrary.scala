@@ -54,6 +54,6 @@ trait ComponentLibrary {
 	def getRequestDetailsScatterChartComponent(successData: Series[IntVsTimePlot], failuresData: Series[IntVsTimePlot]): Component
 	def getRequestDetailsIndicatorChartComponent: Component
 	def getNumberOfRequestsChartComponent: Component
-	def getGroupDurationChartComponent(title: String, runStart: Long, durationsSuccess: Series[IntRangeVsTimePlot], durationsFailure: Series[IntRangeVsTimePlot]): Component
-	def getGroupDetailsDurationDistributionChartComponent(title: String, durationsSuccess: Series[IntVsTimePlot], durationsFailure: Series[IntVsTimePlot]): Component
+	def getGroupDurationChartComponent(title: String, containerId: String, runStart: Long, durationsSuccess: Series[IntRangeVsTimePlot], durationsFailure: Series[IntRangeVsTimePlot]): Component
+	def getGroupDetailsDurationDistributionChartComponent(title: String, containerId: String, durationsSuccess: Series[IntVsTimePlot], durationsFailure: Series[IntVsTimePlot]): Component
 }

@@ -161,39 +161,45 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	private def distribution(slotsNumber: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) = {
 
 		// get main and max for request/all status
-		val min = allBuffer.stats.min
-		val max = allBuffer.stats.max
 		val size = allBuffer.stats.count
-		val step = StatsHelper.step(min, max, 100)
-		val halfStep = step / 2
-		val buckets = StatsHelper.bucketsList(min, max, step)
 		val ok = okBuffers.map.values.toSeq
 		val ko = koBuffer.map.values.toSeq
 
-		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
+		if (size == 1) {
+			(ok.map(_.copy(value = 100)), ko.map(_.copy(value = 100)))
 
-		def process(buffer: Seq[IntVsTimePlot]): Seq[IntVsTimePlot] = {
+		} else {
+			val min = allBuffer.stats.min
+			val max = allBuffer.stats.max
+			val step = StatsHelper.step(min, max, 100)
+			val halfStep = step / 2
+			val buckets = StatsHelper.bucketsList(min, max, step)
 
-			val bucketsWithValues = buffer
-				.map(record => (bucketFunction(record.time), record))
-				.groupBy(_._1)
-				.map {
-					case (responseTimeBucket, recordList) =>
+			val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
-						val sizeBucket = recordList.foldLeft(0) {
-							(partialSize, record) => partialSize + record._2.value
-						}
+			def process(buffer: Seq[IntVsTimePlot]): Seq[IntVsTimePlot] = {
 
-						(responseTimeBucket, math.round(sizeBucket * 100.0 / size).toInt)
+				val bucketsWithValues = buffer
+					.map(record => (bucketFunction(record.time), record))
+					.groupBy(_._1)
+					.map {
+						case (responseTimeBucket, recordList) =>
+
+							val sizeBucket = recordList.foldLeft(0) {
+								(partialSize, record) => partialSize + record._2.value
+							}
+
+							(responseTimeBucket, math.round(sizeBucket * 100.0 / size).toInt)
+					}
+					.toMap
+
+				buckets.map {
+					bucket => IntVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0))
 				}
-				.toMap
-
-			buckets.map {
-				bucket => IntVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0))
 			}
-		}
 
-		(process(ok), process(ko))
+			(process(ok), process(ko))
+		}
 	}
 
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) =
@@ -216,6 +222,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats = resultsHolder
 		.getRequestGeneralStatsBuffers(requestName, group, status)
+		.stats
+
+	def groupGeneralStats(group: Group, status: Option[Status]): GeneralStats = resultsHolder
+		.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, status)
 		.stats
 
 	def numberOfRequestInResponseTimeRange(requestName: Option[String], group: Option[Group]): Seq[(String, Int)] = {
