@@ -31,8 +31,4 @@ trait ResponseTimePerSecBuffers {
 	def updateResponseTimePerSecBuffers(record: RequestRecord) {
 		getResponseTimePerSecBuffers(record.name, record.group, Some(record.status)).update(record.requestStartBucket, record.responseTime)
 	}
-
-	def updateGroupResponseTimePerSecBuffers(start: Int, duration: Int, group: Group, status: Status) {
-		//FIXME getResponseTimePerSecBuffers(None, Some(group), Some(status)).update(start, duration)
-	}
 }
