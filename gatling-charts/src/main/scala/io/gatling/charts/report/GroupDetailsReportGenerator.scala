@@ -28,8 +28,8 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 	def generate {
 		def generateDetailPage(group: Group) {
 			def responseTimeChartComponent: Component = {
-				val durationsDataSuccess = dataReader.responseTimeGroupByExecutionStartDate(OK, None, Some(group))
-				val durationsDataFailure = dataReader.responseTimeGroupByExecutionStartDate(KO, None, Some(group))
+				val durationsDataSuccess = dataReader.groupDurationGroupByExecutionStartDate(OK, group)
+				val durationsDataFailure = dataReader.groupDurationGroupByExecutionStartDate(KO, group)
 				val durationsSeriesSuccess = new Series[IntRangeVsTimePlot]("Group duration (success)", durationsDataSuccess, List(BLUE))
 				val durationsSeriesFailure = new Series[IntRangeVsTimePlot]("Group duration (failure)", durationsDataFailure, List(RED))
 

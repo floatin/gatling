@@ -219,13 +219,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.toSeq
 		.sortBy(_.time)
 
-	def responseTimeGroupByExecutionStartDate(status: Status, requestName: Option[String], group: Option[Group]): Seq[IntRangeVsTimePlot] =
+	def responseTimeGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group]): Seq[IntRangeVsTimePlot] =
 		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getResponseTimePerSecBuffers(requestName, group, Some(status)))
 
-	def latencyGroupByExecutionStartDate(status: Status, requestName: Option[String], group: Option[Group]): Seq[IntRangeVsTimePlot] =
+	def latencyGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group]): Seq[IntRangeVsTimePlot] =
 		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getLatencyPerSecBuffers(requestName, group, Some(status)))
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] = {
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
 		val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
 
@@ -239,6 +239,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					IntVsTimePlot(math.round(count / step * 1000).toInt, responseTimes.higher)
 			}.sortBy(_.time)
 	}
+	
+	def groupDurationGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot] = ???
+    def cumulatedResponseTimeGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot] = ???
 
 	def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {
 		val buff = resultsHolder.getErrorsBuffers(requestName, group)
@@ -246,3 +249,4 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		buff.toSeq.map { case (name, count) => ErrorStats(name, count, count * 100 / total) }.sortWith(_.count > _.count)
 	}
 }
+
